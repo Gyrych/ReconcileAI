@@ -1,0 +1,83 @@
+{
+  "name": "vscode-n8n",
+  "displayName": "n8n in VS Code",
+  "description": "在 VS Code 中集成 n8n Web 界面（支持本地托管与反向代理）",
+  "version": "0.0.1",
+  "publisher": "your-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:vscode-n8n.open",
+    "onCommand:vscode-n8n.startManaged"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-n8n.open",
+        "title": "n8n: 打开界面"
+      },
+      {
+        "command": "vscode-n8n.startManaged",
+        "title": "n8n: 启动本地托管实例并打开"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "n8n Integration",
+      "properties": {
+        "vscode-n8n.targetUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:5678",
+          "description": "外部 n8n 实例地址（external 模式）。"
+        },
+        "vscode-n8n.proxy.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用内置反向代理以移除 X-Frame-Options 与 frame-ancestors。"
+        },
+        "vscode-n8n.proxy.port": {
+          "type": "number",
+          "default": 5799,
+          "description": "本地反向代理监听端口。"
+        },
+        "vscode-n8n.managed.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "启用托管模式：自动启动本地 n8n 并通过代理打开。"
+        },
+        "vscode-n8n.managed.binary": {
+          "type": "string",
+          "default": "n8n",
+          "description": "托管模式下 n8n 可执行文件名称或绝对路径。"
+        },
+        "vscode-n8n.managed.env": {
+          "type": "object",
+          "default": {},
+          "description": "托管模式传递给 n8n 的环境变量（键值对）。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint . --ext .ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.0",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1"
+  }
+}
