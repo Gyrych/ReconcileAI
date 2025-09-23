@@ -34,19 +34,35 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
   }, []);
 
   const validateApiKey = (key: string) => {
-    // 简单的API Key格式验证
-    const isValidFormat = key.startsWith('sk-') && key.length > 20;
+    // DeepSeek API Key格式验证：以sk-开头，长度在30-200字符之间
+    const isValidFormat = key.startsWith('sk-') && key.length >= 30 && key.length <= 200;
+    console.log('API Key验证:', {
+      keyLength: key.length,
+      startsWithSk: key.startsWith('sk-'),
+      lengthInRange: key.length >= 30 && key.length <= 200,
+      isValidFormat,
+      timestamp: new Date().toISOString()
+    });
     setIsValid(isValidFormat);
     return isValidFormat;
   };
 
   const setApiKey = (key: string) => {
+    console.log('🔑 API Key 设置:', {
+      keyLength: key.length,
+      hasValue: !!key,
+      startsWithSk: key.startsWith('sk-'),
+      timestamp: new Date().toISOString()
+    });
+
     setApiKeyState(key);
     validateApiKey(key);
     if (key) {
       localStorage.setItem('deepseek-api-key', key);
+      console.log('💾 API Key 已保存到 localStorage');
     } else {
       localStorage.removeItem('deepseek-api-key');
+      console.log('🗑️ API Key 已从 localStorage 移除');
     }
   };
 

@@ -9,6 +9,13 @@ export class ExcelParser {
    * 解析单个Excel文件
    */
   static async parseFile(file: File, source: 'standard' | 'check'): Promise<Entry[]> {
+    console.log(`开始解析${source}文件:`, {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      timestamp: new Date().toISOString()
+    });
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -16,6 +23,12 @@ export class ExcelParser {
         try {
           const data = new Uint8Array(e.target?.result as ArrayBuffer);
           const workbook = XLSX.read(data, { type: 'array' });
+
+          console.log('工作簿信息:', {
+            sheetNames: workbook.SheetNames,
+            sheetCount: workbook.SheetNames.length,
+            timestamp: new Date().toISOString()
+          });
 
           // 获取第一个工作表
           const sheetName = workbook.SheetNames[0];
@@ -27,15 +40,35 @@ export class ExcelParser {
             defval: '',
           }) as any[][];
 
+          console.log('转换为JSON数据:', {
+            rowCount: jsonData.length,
+            firstRowLength: jsonData[0]?.length || 0,
+            timestamp: new Date().toISOString()
+          });
+
           // 解析为Entry数组
           const entries = this.parseJsonToEntries(jsonData, source);
+          console.log(`${source}文件解析完成:`, {
+            entriesCount: entries.length,
+            timestamp: new Date().toISOString()
+          });
           resolve(entries);
         } catch (error) {
+          console.error(`${source}文件解析失败:`, {
+            error: error instanceof Error ? error.message : '未知错误',
+            stack: error instanceof Error ? error.stack : undefined,
+            timestamp: new Date().toISOString()
+          });
           reject(new Error(`文件解析失败: ${error instanceof Error ? error.message : '未知错误'}`));
         }
       };
 
       reader.onerror = () => {
+        console.error('文件读取失败:', {
+          fileName: file.name,
+          error: 'FileReader error',
+          timestamp: new Date().toISOString()
+        });
         reject(new Error('文件读取失败'));
       };
 
@@ -69,19 +102,41 @@ export class ExcelParser {
     jsonData: any[][],
     source: 'standard' | 'check'
   ): Entry[] {
+    console.log(`开始解析${source}文件数据:`, {
+      dataRows: jsonData.length,
+      timestamp: new Date().toISOString()
+    });
+
     if (jsonData.length < 2) {
-      throw new Error('Excel文件至少需要包含标题行和一行数据');
+      const error = new Error('Excel文件至少需要包含标题行和一行数据');
+      console.error('数据验证失败:', error.message);
+      throw error;
     }
 
     const entries: Entry[] = [];
     const headers = jsonData[0] as string[];
 
+    console.log('标题行内容:', {
+      headers: headers,
+      timestamp: new Date().toISOString()
+    });
+
     // 查找必要的列索引
     const nameIndex = this.findColumnIndex(headers, ['name', '名称', '条目', '项目']);
     const amountIndex = this.findColumnIndex(headers, ['amount', '金额', '价值', '价格', '数额']);
 
+    console.log('列索引查找结果:', {
+      nameIndex,
+      amountIndex,
+      nameHeader: nameIndex >= 0 ? headers[nameIndex] : '未找到',
+      amountHeader: amountIndex >= 0 ? headers[amountIndex] : '未找到',
+      timestamp: new Date().toISOString()
+    });
+
     if (nameIndex === -1 || amountIndex === -1) {
-      throw new Error('Excel文件必须包含"名称"和"金额"列');
+      const error = new Error('Excel文件必须包含"名称"和"金额"列');
+      console.error('必需列缺失:', error.message);
+      throw error;
     }
 
     // 从第二行开始处理数据
@@ -91,21 +146,37 @@ export class ExcelParser {
       const amountStr = String(row[amountIndex] || '').trim();
 
       // 跳过空行
-      if (!name && !amountStr) continue;
+      if (!name && !amountStr) {
+        console.log(`跳过第${i + 1}行: 空行`);
+        continue;
+      }
 
       // 解析金额
       const amount = this.parseAmount(amountStr);
       if (amount === null) {
-        console.warn(`第${i + 1}行金额格式无效: ${amountStr}`);
+        console.warn(`第${i + 1}行金额格式无效:`, {
+          rowData: row,
+          amountStr,
+          name,
+          timestamp: new Date().toISOString()
+        });
         continue;
       }
 
-      entries.push({
+      const entry = {
         id: `${source}_${i}`,
         name,
         amount,
         source,
         originalIndex: i,
+      };
+
+      entries.push(entry);
+      console.log(`处理第${i + 1}行数据:`, {
+        entryId: entry.id,
+        name: entry.name,
+        amount: entry.amount,
+        timestamp: new Date().toISOString()
       });
     }
 

@@ -337,7 +337,7 @@ ${categorySummary}
    * 验证API Key格式
    */
   static validateApiKey(apiKey: string): boolean {
-    return apiKey.startsWith('sk-') && apiKey.length > 20;
+    return apiKey.startsWith('sk-') && apiKey.length >= 30 && apiKey.length <= 200;
   }
 
   /**

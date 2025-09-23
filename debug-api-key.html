@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key 调试工具</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+        .debug-panel { background: #2a2a2a; padding: 20px; border-radius: 8px; margin: 10px 0; }
+        .status { padding: 5px 10px; border-radius: 4px; margin: 5px 0; }
+        .success { background: #0f5132; color: #d1e7dd; }
+        .error { background: #842029; color: #ea868f; }
+        .warning { background: #664d03; color: #fff3cd; }
+        button { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #333; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Key 调试工具</h1>
+
+    <div class="debug-panel">
+        <h2>LocalStorage 检查</h2>
+        <div id="localStorageStatus"></div>
+        <button onclick="checkLocalStorage()">检查 LocalStorage</button>
+        <button onclick="clearLocalStorage()">清除 LocalStorage</button>
+    </div>
+
+    <div class="debug-panel">
+        <h2>API Key 格式验证</h2>
+        <input type="password" id="apiKeyInput" placeholder="输入API密钥进行验证" style="width: 300px;">
+        <button onclick="validateApiKey()">验证格式</button>
+        <div id="validationResult"></div>
+    </div>
+
+    <div class="debug-panel">
+        <h2>应用程序状态</h2>
+        <div id="appStatus"></div>
+        <button onclick="checkAppStatus()">检查应用状态</button>
+    </div>
+
+    <script>
+        function checkLocalStorage() {
+            const statusDiv = document.getElementById('localStorageStatus');
+            const apiKey = localStorage.getItem('deepseek-api-key');
+            const language = localStorage.getItem('language');
+
+            statusDiv.innerHTML = `
+                <div class="status ${apiKey ? 'success' : 'warning'}">
+                    API Key: ${apiKey ? `${apiKey.length} 字符` : '未设置'}
+                </div>
+                <div class="status ${language ? 'success' : 'warning'}">
+                    语言设置: ${language || '未设置'}
+                </div>
+            `;
+
+            console.log('LocalStorage 内容:', {
+                'deepseek-api-key': apiKey ? `${apiKey.length} 字符` : null,
+                language,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('deepseek-api-key');
+            localStorage.removeItem('language');
+            checkLocalStorage();
+            alert('LocalStorage 已清除');
+        }
+
+        function validateApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            const resultDiv = document.getElementById('validationResult');
+            const key = input.value;
+
+            const isValidFormat = key.startsWith('sk-') && key.length > 20;
+            const isValidLength = key.length >= 35 && key.length <= 200; // 合理的API key长度范围
+
+            resultDiv.innerHTML = `
+                <div class="status ${isValidFormat ? 'success' : 'error'}">
+                    格式检查: ${isValidFormat ? '✅ 以 sk- 开头且长度 > 20' : '❌ 格式无效'}
+                </div>
+                <div class="status ${isValidLength ? 'success' : 'warning'}">
+                    长度检查: ${key.length} 字符 ${isValidLength ? '✅' : '(建议: 35-200字符)'}
+                </div>
+                <div class="status ${isValidFormat && isValidLength ? 'success' : 'error'}">
+                    总体结果: ${isValidFormat && isValidLength ? '✅ API密钥格式有效' : '❌ API密钥格式无效'}
+                </div>
+            `;
+
+            console.log('API Key 验证结果:', {
+                keyLength: key.length,
+                startsWithSk: key.startsWith('sk-'),
+                isValidFormat,
+                isValidLength,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        function checkAppStatus() {
+            const statusDiv = document.getElementById('appStatus');
+
+            // 尝试访问主应用程序的全局对象
+            const hasDebugFunctions = typeof window.testStateMachine !== 'undefined';
+            const hasSyncFunction = typeof window.syncApiKey !== 'undefined';
+
+            statusDiv.innerHTML = `
+                <div class="status ${hasDebugFunctions ? 'success' : 'warning'}">
+                    调试函数: ${hasDebugFunctions ? '✅ 已加载' : '❌ 未加载'}
+                </div>
+                <div class="status ${hasSyncFunction ? 'success' : 'warning'}">
+                    API同步函数: ${hasSyncFunction ? '✅ 已加载' : '❌ 未加载'}
+                </div>
+            `;
+
+            if (hasDebugFunctions) {
+                console.log('调试函数可用');
+            }
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkLocalStorage();
+            checkAppStatus();
+        };
+
+        // 每5秒自动检查一次
+        setInterval(() => {
+            checkLocalStorage();
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -27,14 +27,45 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 }) => {
   const { t } = useTranslation();
   const [dragOver, setDragOver] = useState<'standard' | 'check' | null>(null);
-  const [standardStatus, setStandardStatus] = useState<FileStatus>({ file: standardFile, isValid: false });
-  const [checkStatus, setCheckStatus] = useState<FileStatus>({ file: checkFile, isValid: false });
+  const [standardStatus, setStandardStatus] = useState<FileStatus>({
+    file: standardFile,
+    isValid: standardFile ? ExcelParser.validateFile(standardFile).valid : false
+  });
+  const [checkStatus, setCheckStatus] = useState<FileStatus>({
+    file: checkFile,
+    isValid: checkFile ? ExcelParser.validateFile(checkFile).valid : false
+  });
+
+  // 调试日志 - 组件props
+  console.log('📦 FileUpload 组件props:', {
+    standardFile: standardFile ? {
+      name: standardFile.name,
+      size: standardFile.size,
+      type: standardFile.type
+    } : null,
+    checkFile: checkFile ? {
+      name: checkFile.name,
+      size: checkFile.size,
+      type: checkFile.type
+    } : null,
+    onStandardFileSelect: typeof onStandardFileSelect,
+    onCheckFileSelect: typeof onCheckFileSelect,
+    onNext: typeof onNext,
+    timestamp: new Date().toISOString()
+  });
 
   const validateAndSetFile = useCallback((
     file: File,
     setter: (file: File) => void,
     statusSetter: (status: FileStatus) => void
   ) => {
+    console.log('🔍 文件验证开始:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      timestamp: new Date().toISOString()
+    });
+
     const validation = ExcelParser.validateFile(file);
     const status: FileStatus = {
       file,
@@ -42,9 +73,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       error: validation.error,
     };
 
+    console.log('📋 文件验证结果:', {
+      isValid: validation.valid,
+      error: validation.error,
+      timestamp: new Date().toISOString()
+    });
+
     statusSetter(status);
     if (validation.valid) {
+      console.log('✅ 文件验证通过，设置文件...');
       setter(file);
+    } else {
+      console.log('❌ 文件验证失败:', validation.error);
     }
   }, []);
 
@@ -206,29 +246,163 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         />
       </div>
 
+      {/* 调试信息 */}
+      <motion.div
+        className="mt-6 p-4 bg-gray-900/50 border border-gray-600 rounded-lg"
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ opacity: 1, height: 'auto' }}
+      >
+        <h4 className="text-white font-medium mb-2">调试信息：</h4>
+        <div className="space-y-1 text-sm text-gray-300">
+          <div>标准表文件：{standardStatus.file ? standardStatus.file.name : '未选择'} {standardStatus.isValid ? '✅' : '❌'}</div>
+          <div>待核对表文件：{checkStatus.file ? checkStatus.file.name : '未选择'} {checkStatus.isValid ? '✅' : '❌'}</div>
+          <div>可以进入下一步：{canProceed ? '✅ 是' : '❌ 否'}</div>
+          {standardStatus.error && <div className="text-red-400">标准表错误：{standardStatus.error}</div>}
+          {checkStatus.error && <div className="text-red-400">待核对表错误：{checkStatus.error}</div>}
+        </div>
+      </motion.div>
+
       {/* 下一步按钮 */}
       <motion.div
         className="text-center pt-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: canProceed ? 1 : 0.5 }}
       >
-        <button
-          onClick={onNext}
+        <motion.button
+          onClick={() => {
+            console.log('🎯 下一步按钮被点击！', {
+              timestamp: new Date().toISOString(),
+              canProceed,
+              standardStatus: {
+                isValid: standardStatus.isValid,
+                fileName: standardStatus.file?.name,
+                fileSize: standardStatus.file?.size,
+              },
+              checkStatus: {
+                isValid: checkStatus.isValid,
+                fileName: checkStatus.file?.name,
+                fileSize: checkStatus.file?.size,
+              },
+            });
+
+            // 显示点击反馈
+            alert('✅ 按钮点击成功！请查看控制台日志。');
+
+            if (!canProceed) {
+              console.error('❌ 无法进入下一步：', {
+                reason: !standardStatus.isValid && !checkStatus.isValid
+                  ? '两个文件都无效'
+                  : !standardStatus.isValid
+                    ? '标准表文件无效'
+                    : '待核对表文件无效',
+                standardError: standardStatus.error,
+                checkError: checkStatus.error,
+                canProceed,
+                standardIsValid: standardStatus.isValid,
+                checkIsValid: checkStatus.isValid,
+              });
+              alert(`无法进入下一步：${standardStatus.error || checkStatus.error || '请检查文件格式'}`);
+              return;
+            }
+
+            console.log('🔄 开始触发NEXT事件...', {
+              timestamp: new Date().toISOString(),
+              buttonElement: 'FileUpload onNext button',
+              currentState: 'About to call onNext prop'
+            });
+            console.log('🔄 调用onNext函数...');
+
+            try {
+              onNext();
+              console.log('✅ onNext函数调用完成');
+            } catch (error) {
+              console.error('❌ onNext函数调用失败:', {
+                error: error instanceof Error ? error.message : '未知错误',
+                stack: error instanceof Error ? error.stack : undefined,
+                timestamp: new Date().toISOString()
+              });
+            }
+          }}
           disabled={!canProceed}
+          whileTap={{ scale: 0.95 }}
+          whileHover={canProceed ? { scale: 1.05 } : {}}
           className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
             canProceed
-              ? 'finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 transform hover:scale-105'
+              ? 'finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 transform'
               : 'bg-gray-600 cursor-not-allowed'
           } text-white`}
         >
           {t('common.next')}
-        </button>
+        </motion.button>
 
         {!canProceed && (
           <p className="text-gray-400 text-sm mt-2">
             请先选择有效的Excel文件
           </p>
         )}
+
+        {/* 调试按钮 */}
+        <div className="mt-4 flex justify-center space-x-2">
+          <button
+            onClick={() => {
+              console.log('🧪 测试状态机事件发送');
+              // 直接调用父组件的状态机事件
+              if (typeof window !== 'undefined' && (window as any).testStateMachine) {
+                (window as any).testStateMachine();
+              }
+            }}
+            className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-300 hover:text-blue-200 transition-colors text-sm"
+          >
+            🧪 测试状态机
+          </button>
+          <button
+            onClick={() => {
+              console.log('🔄 强制刷新调试面板');
+              // 强制重新渲染
+              window.location.reload();
+            }}
+            className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-300 hover:text-green-200 transition-colors text-sm"
+          >
+            🔄 强制刷新
+          </button>
+          <button
+            onClick={() => {
+              console.log('🩺 诊断当前状态');
+              console.log('📦 当前组件状态:', {
+                standardStatus: {
+                  file: standardStatus.file?.name,
+                  isValid: standardStatus.isValid,
+                  error: standardStatus.error
+                },
+                checkStatus: {
+                  file: checkStatus.file?.name,
+                  isValid: checkStatus.isValid,
+                  error: checkStatus.error
+                },
+                canProceed,
+                standardFile,
+                checkFile
+              });
+              alert('请查看控制台的诊断信息');
+            }}
+            className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded-lg text-purple-300 hover:text-purple-200 transition-colors text-sm"
+          >
+            🩺 诊断状态
+          </button>
+          <button
+            onClick={() => {
+              console.log('🔄 强制同步API Key');
+              // 强制触发API Key同步
+              if (typeof window !== 'undefined' && window.syncApiKey) {
+                window.syncApiKey();
+              }
+              alert('API Key同步已触发，请查看控制台');
+            }}
+            className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-lg text-yellow-300 hover:text-yellow-200 transition-colors text-sm"
+          >
+            🔄 同步API
+          </button>
+        </div>
       </motion.div>
     </motion.div>
   );
