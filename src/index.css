@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .animate-gradient {
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .glass-effect {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-105;
+  }
+
+  .entry-card {
+    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 transition-all duration-300;
+  }
+
+  .entry-card:hover {
+    @apply bg-white/10 border-white/20 shadow-lg;
+  }
+
+  .finance-gradient {
+    @apply bg-gradient-to-br from-finance-blue via-finance-purple to-finance-pink;
+  }
+}

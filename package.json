@@ -1,83 +1,44 @@
 {
-  "name": "vscode-n8n",
-  "displayName": "n8n in VS Code",
-  "description": "在 VS Code 中集成 n8n Web 界面（支持本地托管与反向代理）",
-  "version": "0.0.1",
-  "publisher": "your-name",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:vscode-n8n.open",
-    "onCommand:vscode-n8n.startManaged"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "vscode-n8n.open",
-        "title": "n8n: 打开界面"
-      },
-      {
-        "command": "vscode-n8n.startManaged",
-        "title": "n8n: 启动本地托管实例并打开"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "n8n Integration",
-      "properties": {
-        "vscode-n8n.targetUrl": {
-          "type": "string",
-          "default": "http://127.0.0.1:5678",
-          "description": "外部 n8n 实例地址（external 模式）。"
-        },
-        "vscode-n8n.proxy.enable": {
-          "type": "boolean",
-          "default": true,
-          "description": "启用内置反向代理以移除 X-Frame-Options 与 frame-ancestors。"
-        },
-        "vscode-n8n.proxy.port": {
-          "type": "number",
-          "default": 5799,
-          "description": "本地反向代理监听端口。"
-        },
-        "vscode-n8n.managed.enable": {
-          "type": "boolean",
-          "default": false,
-          "description": "启用托管模式：自动启动本地 n8n 并通过代理打开。"
-        },
-        "vscode-n8n.managed.binary": {
-          "type": "string",
-          "default": "n8n",
-          "description": "托管模式下 n8n 可执行文件名称或绝对路径。"
-        },
-        "vscode-n8n.managed.env": {
-          "type": "object",
-          "default": {},
-          "description": "托管模式传递给 n8n 的环境变量（键值对）。"
-        }
-      }
-    }
-  },
+  "name": "e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "build": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "lint": "eslint . --ext .ts",
-    "package": "vsce package"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@types/vscode": "^1.85.0",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.0",
-    "vsce": "^2.15.0"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "http-proxy": "^1.18.1"
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@types/d3": "^7.4.3",
+    "@xstate/react": "^6.0.0",
+    "d3": "^7.9.0",
+    "framer-motion": "^12.23.18",
+    "i18next": "^25.5.2",
+    "lucide-react": "^0.544.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-i18next": "^15.7.3",
+    "xlsx": "^0.18.5",
+    "xstate": "^5.22.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.4.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.44.0",
+    "vite": "^7.1.7"
   }
 }
