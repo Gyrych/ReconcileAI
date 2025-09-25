@@ -1,4 +1,44 @@
 import { createMachine, assign, fromPromise } from 'xstate';
+
+// 从 invoke 事件中提取解析结果的通用函数，兼容不同平台事件包装
+function extractParsedPayload(event: any): any {
+  if (!event) return null;
+  // 常见位置： event.data, event.output, event
+  const candidates: any[] = [event?.data, event?.output, event];
+
+  for (const cand of candidates) {
+    if (!cand) continue;
+    const candAny = cand as any;
+    if (candAny?.standard && candAny?.check) return candAny;
+    // 递归查找第一层对象中包含 standard/check 的子对象
+    for (const key of Object.keys(candAny)) {
+      try {
+        const v = (candAny as any)[key];
+        if (v && typeof v === 'object' && ((v as any).standard || (v as any).check)) return v;
+      } catch (_) {}
+    }
+  }
+
+  // 最后尝试深度搜索（受限深度）
+  const seen = new Set<any>();
+  function dfs(obj: any, depth = 0): any {
+    if (!obj || typeof obj !== 'object' || seen.has(obj) || depth > 4) return null;
+    seen.add(obj);
+    if ((obj as any).standard && (obj as any).check) return obj;
+    for (const k of Object.keys(obj)) {
+      const res: any = dfs(obj[k], depth + 1);
+      if (res) return res;
+    }
+    return null;
+  }
+
+  for (const cand of candidates) {
+    const res: any = dfs(cand, 0);
+    if (res) return res;
+  }
+
+  return null;
+}
 import { ExcelParser } from '../services/excelParser';
 import { DeepSeekService } from '../services/deepseekService';
 
@@ -93,19 +133,79 @@ export const reconcileMachine = createMachine({
         src: 'parseFiles',
         input: ({ context }: any) => ({
           standardFile: context.standardFile,
-          checkFile: context.checkFile
+          checkFile: context.checkFile,
+          apiKey: context.apiKey
         }),
         onDone: {
           target: 'display',
           actions: [
             assign({
-              parsedData: (_, event: any) => event.output,
+              parsedData: (_, event: any) => {
+                // 诊断性日志，记录 event 的顶层键
+                try {
+                  console.log('DEBUG parse onDone event keys:', Object.keys(event || {}));
+                  console.log('DEBUG event.data keys:', event?.data ? Object.keys(event.data) : null);
+                  console.log('DEBUG event.output keys:', event?.output ? Object.keys(event.output) : null);
+                } catch (e) {}
+
+                // 首选直接获取 event.data/event.output
+                let payload = event?.data ?? event?.output ?? event;
+
+                // 如果 payload 本身不包含 standard/check，尝试在其子属性中查找
+                if (payload && !((payload as any).standard && (payload as any).check)) {
+                  for (const val of Object.values(payload || {})) {
+                    if (val && typeof val === 'object' && (((val as any).standard) || ((val as any).check))) {
+                      payload = val;
+                      break;
+                    }
+                  }
+                }
+
+                // 最后回退到 extractParsedPayload 的更深层查找
+                if (!payload || !(((payload as any).standard) && ((payload as any).check))) {
+                  payload = extractParsedPayload(event) ?? null;
+                }
+
+                // 如果仍然没有有效 payload，尝试使用全局回退（由 actors.parseFiles 暂存）
+                if ((!payload || !(((payload as any).standard) && ((payload as any).check))) && (globalThis as any).__LAST_PARSE_RESULT) {
+                  try {
+                    console.log('使用全局回退解析结果 __LAST_PARSE_RESULT 作为 payload 回退来源');
+                  } catch (e) {}
+                  payload = (globalThis as any).__LAST_PARSE_RESULT;
+                }
+
+                // 规范化返回结构，兼容 frontend 可能读取的不同字段名
+                if (payload) {
+                  const normalized: any = {
+                    standard: payload.standard ?? payload.standardEntries ?? payload.standardRows ?? [],
+                    check: payload.check ?? payload.checkEntries ?? payload.checkRows ?? []
+                  };
+                  // 将兼容字段一并保留，便于前端逐步迁移
+                  normalized.standardEntries = normalized.standard;
+                  normalized.checkEntries = normalized.check;
+                  return normalized;
+                }
+
+                return null;
+              },
               isLoading: false,
             }),
+            // 诊断：在 assign 完成后打印 context.parsedData 的摘要，确保前端能读取到
+            ({ context }: any) => {
+              try {
+                const pd = (context as any).parsedData;
+                console.log('DEBUG context.parsedData after assign:', {
+                  keys: pd ? Object.keys(pd) : null,
+                  standardLen: pd?.standard?.length ?? pd?.standardEntries?.length ?? 0,
+                  checkLen: pd?.check?.length ?? pd?.checkEntries?.length ?? 0,
+                });
+              } catch (e) {}
+            },
             (_, event: any) => {
-              console.log('文件解析成功:', {
-                standardEntriesCount: event.output.standard?.length || 0,
-                checkEntriesCount: event.output.check?.length || 0,
+                const payload = extractParsedPayload(event) || (event?.data ?? event?.output ?? event);
+                console.log('文件解析成功:', {
+                standardEntriesCount: payload?.standard?.length || 0,
+                checkEntriesCount: payload?.check?.length || 0,
                 timestamp: new Date().toISOString()
               });
             }
@@ -115,28 +215,31 @@ export const reconcileMachine = createMachine({
           actions: [
             assign({
               error: ({ event }: any) => {
-                const error = (event as any)?.error;
+                const evt = (event as any) || {};
+                const err = evt.error ?? evt.data ?? evt;
                 let userFriendlyMessage = '文件解析失败';
 
                 // 根据错误类型提供更具体的错误信息
-                if (error instanceof Error) {
-                  if (error.message.includes('文件未选择')) {
-                    userFriendlyMessage = '请先选择标准表和待核对表文件';
-                  } else if (error.message.includes('至少需要包含标题行')) {
-                    userFriendlyMessage = 'Excel文件格式不正确，至少需要包含标题行和一行数据';
-                  } else if (error.message.includes('必须包含')) {
-                    userFriendlyMessage = 'Excel文件缺少必需的列：名称和金额列';
-                  } else if (error.message.includes('文件中没有找到有效的数据行')) {
-                    userFriendlyMessage = 'Excel文件中没有找到有效的数据，请检查文件内容';
-                  } else if (error.message.includes('文件读取失败')) {
-                    userFriendlyMessage = '文件读取失败，请检查文件是否损坏或格式是否正确';
-                  } else {
-                    userFriendlyMessage = error.message;
-                  }
+                const message = (err instanceof Error ? err.message : (typeof err === 'string' ? err : JSON.stringify(err || {})));
+                if (message.includes && message.includes('文件未选择')) {
+                  userFriendlyMessage = '请先选择标准表和待核对表文件';
+                } else if (message.includes && message.includes('至少需要包含标题行')) {
+                  userFriendlyMessage = 'Excel文件格式不正确，至少需要包含标题行和一行数据';
+                } else if (message.includes && message.includes('必须包含')) {
+                  userFriendlyMessage = 'Excel文件缺少必需的列：名称和金额列';
+                } else if (message.includes && message.includes('文件中没有找到有效的数据行')) {
+                  userFriendlyMessage = 'Excel文件中没有找到有效的数据，请检查文件内容';
+                } else if (message.includes && message.includes('分类结果解析失败')) {
+                  userFriendlyMessage = 'AI分类返回格式异常，已回退为未分类，请检查日志';
+                } else if (message.includes && message.includes('文件读取失败')) {
+                  userFriendlyMessage = '文件读取失败，请检查文件是否损坏或格式是否正确';
+                } else {
+                  userFriendlyMessage = message || userFriendlyMessage;
                 }
 
-                console.error('文件解析失败:', {
-                  originalError: error,
+                console.error('文件解析失败（事件）：', {
+                  event: evt,
+                  message,
                   userMessage: userFriendlyMessage,
                   timestamp: new Date().toISOString()
                 });
@@ -177,9 +280,59 @@ export const reconcileMachine = createMachine({
         }),
         onDone: {
           target: 'manualConfirm',
-          actions: assign({
-            categories: (_, event: any) => event.output.categories,
-            summary: (_, event: any) => event.output.summary,
+            actions: assign({
+            categories: (_, event: any) => {
+              // 尝试多路径提取 categories，兼容不同运行时和 invoke wrapping
+              let payload: any = (event && (event.data ?? event.output ?? event)) ?? null;
+
+              // 深度查找可能包含 categories 的子对象
+              if (payload && !payload.categories) {
+                try {
+                  for (const v of Object.values(payload)) {
+                    const vv: any = v;
+                    if (vv && typeof vv === 'object' && (vv.categories || (vv.standard && vv.check))) {
+                      payload = vv;
+                      break;
+                    }
+                  }
+                } catch (e) {}
+              }
+
+              // 使用通用提取器
+              const deep = extractParsedPayload(event) ?? payload;
+
+              // 最后回退到全局缓存（actors 可能已写入）
+              const globalFallback = (globalThis as any).__LAST_CLASSIFY_RESULT ?? (globalThis as any).__LAST_PARSE_RESULT ?? null;
+
+              const finalPayload = deep ?? globalFallback ?? null;
+
+              try { // 诊断性日志
+                console.log('DEBUG aiClassify onDone payload keys:', finalPayload ? Object.keys(finalPayload) : null);
+              } catch (e) {}
+
+              return finalPayload?.categories ?? null;
+            },
+            summary: (_, event: any) => {
+              let payload: any = (event && (event.data ?? event.output ?? event)) ?? null;
+
+              if (payload && !payload.summary) {
+                try {
+                  for (const v of Object.values(payload)) {
+                    const vv: any = v;
+                    if (vv && typeof vv === 'object' && vv.summary) {
+                      payload = vv;
+                      break;
+                    }
+                  }
+                } catch (e) {}
+              }
+
+              const deep = extractParsedPayload(event) ?? payload;
+              const globalFallback = (globalThis as any).__LAST_CLASSIFY_RESULT ?? null;
+              const finalPayload = deep ?? globalFallback ?? null;
+
+              return finalPayload?.summary ?? null;
+            },
             isLoading: false,
           }),
         },
@@ -216,8 +369,25 @@ export const reconcileMachine = createMachine({
         }),
         onDone: {
           target: 'compare',
-          actions: assign({
-            categories: (_, event: any) => event.output,
+            actions: assign({
+            categories: (_, event: any) => {
+              // 尝试多路径提取计算结果，兼容不同运行时的包装形式
+              let payload: any = (event && (event.data ?? event.output ?? event)) ?? null;
+
+              // 如果 payload 包含 categories 字段，优先使用它
+              if (payload && typeof payload === 'object' && payload.categories) {
+                return payload.categories;
+              }
+
+              // 如果 payload 本身就是 categories 对象（以类别名为键），直接返回
+              if (payload && typeof payload === 'object') {
+                return payload;
+              }
+
+              // 回退到全局缓存（actor 可能已写入）
+              const globalFallback = (globalThis as any).__LAST_CALCULATE_RESULT ?? (globalThis as any).__LAST_CLASSIFY_RESULT?.categories ?? (globalThis as any).__LAST_PARSE_RESULT ?? null;
+              return globalFallback;
+            },
             isLoading: false,
           }),
         },
@@ -245,7 +415,25 @@ export const reconcileMachine = createMachine({
         }),
         onDone: {
           actions: assign({
-            summary: (_, event: any) => event.output,
+            summary: (_, event: any) => {
+              // 兼容不同运行时的 event 包装，优先取 data/output，然后尝试在子属性中查找 summary
+              let payload: any = (event && (event.data ?? event.output ?? event)) ?? null;
+
+              if (payload && typeof payload === 'object') {
+                if (payload.summary && typeof payload.summary === 'string') return payload.summary;
+                // 某些实现把 summary 放在 payload.data.summary 或 payload.output.summary
+                if (payload.data && payload.data.summary) return payload.data.summary;
+                if (payload.output && payload.output.summary) return payload.output.summary;
+                // 若 payload 本身就是字符串（rare），直接返回
+              }
+
+              // 如果 payload 是字符串则直接作为 summary
+              if (typeof payload === 'string') return payload;
+
+              // 回退到全局缓存
+              const globalFallback = (globalThis as any).__LAST_SUMMARY_RESULT ?? (globalThis as any).__LAST_CLASSIFY_RESULT?.summary ?? null;
+              return globalFallback ?? null;
+            },
             isLoading: false,
           }),
         },
@@ -360,6 +548,8 @@ export const reconcileMachine = createMachine({
         checkFile: input.checkFile?.name,
         standardFileSize: input.standardFile?.size,
         checkFileSize: input.checkFile?.size,
+        // 在此处记录传入的 apiKey（掩码显示前4字符）以便调试
+        apiKeyInfo: input.apiKey ? `${String(input.apiKey).slice(0,4)}... (len=${String(input.apiKey).length})` : '无',
         timestamp: new Date().toISOString()
       });
 
@@ -370,12 +560,19 @@ export const reconcileMachine = createMachine({
       }
 
       try {
-        const result = await ExcelParser.parseFiles(input.standardFile, input.checkFile);
+        const result = await ExcelParser.parseFiles(input.standardFile, input.checkFile, input.apiKey);
         console.log('文件解析完成:', {
           standardEntries: result.standard.length,
           checkEntries: result.check.length,
           timestamp: new Date().toISOString()
         });
+        // 兼容性补丁：在某些运行环境中 onDone 的 event 可能不可枚举，
+        // 将解析结果暂存到全局变量，作为 onDone 的回退读取来源
+        try {
+          (globalThis as any).__LAST_PARSE_RESULT = result;
+        } catch (e) {
+          // 忽略在受限环境中设置全局变量可能失败的情况
+        }
         return result;
       } catch (error) {
         console.error('文件解析过程中出错:', {

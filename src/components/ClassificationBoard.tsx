@@ -85,6 +85,30 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
   };
 
   if (!categories) {
+    // 在开发模式下显示更详细的调试信息，帮助定位 categories 为 null 的原因
+    if (process.env.NODE_ENV !== 'production') {
+      let debugInfo: string = 'null';
+      try {
+        const svc = (window as any).__RECONCILE_SERVICE;
+        const globalLast = (window as any).__LAST_CLASSIFY_RESULT ?? (window as any).__LAST_PARSE_RESULT ?? null;
+        const ctxCategories = svc?.state?.context?.categories ?? null;
+        const info = ctxCategories ?? globalLast ?? null;
+        debugInfo = info ? JSON.stringify(info, null, 2) : 'null';
+      } catch (e) {
+        debugInfo = '获取调试信息时发生错误';
+      }
+
+      return (
+        <div className="text-center text-white">
+          <p>暂无分类数据</p>
+          <details className="mt-2 text-left text-xs text-gray-300 bg-gray-800/30 p-2 rounded max-w-3xl mx-auto">
+            <summary className="cursor-pointer">调试信息（仅开发模式）</summary>
+            <pre className="whitespace-pre-wrap break-words">{debugInfo?.slice ? debugInfo.slice(0, 2000) : String(debugInfo)}</pre>
+          </details>
+        </div>
+      );
+    }
+
     return (
       <div className="text-center text-white">
         <p>暂无分类数据</p>

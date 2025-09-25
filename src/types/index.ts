@@ -7,6 +7,10 @@ export interface Entry {
   category?: string;
   confidence?: number; // AI分类置信度 0-1
   originalIndex?: number; // 原始数据中的索引
+  // 行级上下文文本：由该行所有非金额列拼接、去噪而成，用于AI分类时提供更多语义上下文
+  contextText?: string;
+  // 原始名称（解析前的名称列内容），在将contextText用作name时保留原始值
+  originalName?: string;
 }
 
 export interface CategoryData {
@@ -93,6 +97,27 @@ export interface EntryAnimationProps {
   children: React.ReactNode;
   index: number;
   config?: Partial<AnimationConfig>;
+}
+
+// AI列选择相关类型
+export interface ColumnSelection {
+  nameColumnIndex: number;
+  amountColumnIndex: number;
+  confidence: number;
+  reasoning: string;
+}
+
+// AI简化文件相关类型
+export interface SimplifiedFileData {
+  simplifiedData: any[][]; // 简化后的数据，只包含名称列和金额列
+  originalMapping: {
+    nameColumnIndex: number;
+    amountColumnIndex: number;
+    originalHeaders: string[];
+  };
+  confidence: number;
+  reasoning: string;
+  dataRowsCount: number;
 }
 
 // 国际化相关类型

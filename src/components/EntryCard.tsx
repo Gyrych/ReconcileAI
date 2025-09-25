@@ -151,6 +151,28 @@ export const EntryCard: React.FC<EntryCardProps> = ({
           {entry.name}
         </motion.h3>
 
+        {/* 原始名称与上下文显示（可折叠/省略） */}
+        {entry.originalName && entry.originalName !== entry.name && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: animate ? index * 0.1 + 0.45 : 0.45 }}
+            className="text-gray-300 text-xs mt-1 line-clamp-2"
+          >
+            原始名称：{entry.originalName}
+          </motion.p>
+        )}
+        {entry.contextText && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: animate ? index * 0.1 + 0.5 : 0.5 }}
+            className="text-gray-300 text-xs mt-1 line-clamp-2"
+          >
+            上下文：{entry.contextText}
+          </motion.p>
+        )}
+
         {/* 金额显示 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
