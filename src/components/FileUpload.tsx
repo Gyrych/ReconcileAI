@@ -164,11 +164,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           >
             <div className="flex items-center justify-center space-x-2">
               {status.isValid ? (
-                <CheckCircle className="w-6 h-6 text-green-400" />
+                <CheckCircle className="w-6 h-6 text-gold" />
               ) : (
-                <AlertCircle className="w-6 h-6 text-red-400" />
+                <AlertCircle className="w-6 h-6 text-gold" />
               )}
-              <FileText className={`w-8 h-8 ${status.isValid ? 'text-green-400' : 'text-red-400'}`} />
+              <FileText className={`w-8 h-8 text-gold`} />
             </div>
 
             <div>
@@ -187,9 +187,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 e.stopPropagation();
                 removeFile(type);
               }}
-              className="absolute top-2 right-2 p-1 rounded-full bg-red-500/20 hover:bg-red-500/30 transition-colors"
+              className="absolute top-2 right-2 p-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
             >
-              <X className="w-4 h-4 text-red-400" />
+              <X className="w-4 h-4 text-gold" />
             </button>
           </motion.div>
         ) : (
@@ -198,7 +198,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <Upload className={`w-12 h-12 mx-auto text-${color}-400`} />
+            <Upload className="w-12 h-12 mx-auto text-gold" />
             <div>
               <p className="text-white font-medium">{title}</p>
               <p className="text-gray-400 text-sm mt-1">

@@ -29,10 +29,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         }}
         className="relative"
       >
-        <Loader2 className={`${sizeClasses[size]} text-finance-blue`} />
+        <Loader2 className={`${sizeClasses[size]} text-gold`} />
         {/* Outer ring animation */}
         <motion.div
-          className="absolute inset-0 rounded-full border-2 border-transparent border-t-finance-purple"
+          className="absolute inset-0 rounded-full border-2 border-transparent border-t-gold/40"
           animate={{ rotate: -360 }}
           transition={{
             duration: 1.5,
@@ -56,7 +56,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 bg-finance-blue rounded-full"
+            className="w-2 h-2 bg-gold rounded-full"
             animate={{
               scale: [1, 1.5, 1],
               opacity: [0.5, 1, 0.5],

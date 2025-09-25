@@ -23,13 +23,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   const getStatusIcon = () => {
     switch (categoryData.status) {
       case 'match':
-        return <CheckCircle className="w-5 h-5 text-green-400" />;
+        return <CheckCircle className="w-5 h-5 text-gold" />;
       case 'mismatch':
-        return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
+        return <AlertTriangle className="w-5 h-5 text-gold" />;
       case 'missing':
-        return <XCircle className="w-5 h-5 text-red-400" />;
+        return <XCircle className="w-5 h-5 text-gold" />;
       default:
-        return <XCircle className="w-5 h-5 text-gray-400" />;
+        return <XCircle className="w-5 h-5 text-gold" />;
     }
   };
 
@@ -102,7 +102,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         {/* 类别头部 */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/10 rounded-lg">
+            <div className="p-2 bg-gold/6 rounded-lg">
               {getStatusIcon()}
             </div>
             <div>
@@ -112,13 +112,13 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </div>
 
           {/* 条目统计 */}
-          <div className="flex items-center space-x-4 text-sm">
-            <div className="flex items-center space-x-1 text-blue-400">
-              <Users className="w-4 h-4" />
+            <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-1 text-gold">
+              <Users className="w-4 h-4 text-gold" />
               <span>{categoryData.standard.length}</span>
             </div>
-            <div className="flex items-center space-x-1 text-green-400">
-              <Users className="w-4 h-4" />
+            <div className="flex items-center space-x-1 text-gold">
+              <Users className="w-4 h-4 text-gold" />
               <span>{categoryData.check.length}</span>
             </div>
           </div>
@@ -127,14 +127,14 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         {/* 金额对比 */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-blue-500/10 rounded-lg p-3">
-            <div className="text-xs text-blue-400 mb-1">标准表</div>
-            <div className="text-lg font-bold text-blue-300">
+            <div className="text-xs text-gold mb-1">标准表</div>
+            <div className="text-lg font-bold text-gold">
               ¥{categoryData.totalStandard.toLocaleString('zh-CN')}
             </div>
           </div>
-          <div className="bg-green-500/10 rounded-lg p-3">
-            <div className="text-xs text-green-400 mb-1">待核对表</div>
-            <div className="text-lg font-bold text-green-300">
+          <div className="bg-gold/6 rounded-lg p-3">
+            <div className="text-xs text-gold mb-1">待核对表</div>
+            <div className="text-lg font-bold text-gold">
               ¥{categoryData.totalCheck.toLocaleString('zh-CN')}
             </div>
           </div>
@@ -148,8 +148,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
           >
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-yellow-300">
+              <DollarSign className="w-4 h-4 text-gold" />
+              <span className="text-sm text-gold">
                 差异: ¥{categoryData.difference.toLocaleString('zh-CN')}
               </span>
             </div>
@@ -161,8 +161,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {/* 标准表条目 */}
           {categoryData.standard.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-blue-400 flex items-center">
-                <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+              <h4 className="text-sm font-medium text-gold flex items-center">
+                <div className="w-2 h-2 bg-gold rounded-full mr-2"></div>
                 标准表条目
               </h4>
               {categoryData.standard.map((entry, index) => (
@@ -181,8 +181,8 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           {/* 核对表条目 */}
           {categoryData.check.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-green-400 flex items-center">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+              <h4 className="text-sm font-medium text-gold flex items-center">
+                <div className="w-2 h-2 bg-gold rounded-full mr-2"></div>
                 待核对表条目
               </h4>
               {categoryData.check.map((entry, index) => (

@@ -24,13 +24,11 @@ function AppContent() {
   // 暴露当前 state 和 send 以便在控制台调试和确保发送到正确的实例
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      // 将当前 state/send 挂到 window 上，供控制台和调试命令使用
+      // 将当前 state/send 挂到 window 上供内部调试或开发时使用（非页面可见）
       (window as any).__reconcileState = state;
       (window as any).__reconcileSend = send;
       // 兼容别名，方便手动调用
       (window as any).reconcileSend = (window as any).__reconcileSend;
-      // 让 debugStateMachine.getCurrentState 返回当前 state 引用
-      (window as any).debugStateMachine.getCurrentState = () => (window as any).__reconcileState;
     }
     // 每当 state 或 send 变化时更新全局引用
   }, [state, send]);

@@ -42,17 +42,17 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                 transition={{ delay: index * 0.1 }}
                 className={`
                   relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
-                  ${isActive ? 'finance-gradient shadow-lg shadow-finance-blue/50' : ''}
-                  ${isCompleted ? 'bg-green-500 shadow-lg shadow-green-500/50' : ''}
+                  ${isActive ? 'bg-gold-gradient glow-gold shadow-lg' : ''}
+                  ${isCompleted ? 'bg-gold/10 shadow-lg shadow-gold/10' : ''}
                   ${isPending ? 'bg-gray-600' : ''}
                 `}
               >
-                <Icon className={`w-6 h-6 ${isActive || isCompleted ? 'text-white' : 'text-gray-400'}`} />
+                <Icon className={`w-6 h-6 ${isActive ? 'text-white' : isCompleted ? 'text-gold' : 'text-gray-400'}`} />
 
-                {/* Pulse animation for active step */}
+                {/* Pulse animation for active step (金色边框脉冲) */}
                 {isActive && (
                   <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-finance-blue"
+                    className="absolute inset-0 rounded-full border-2 border-gold"
                     animate={{
                       scale: [1, 1.2, 1],
                       opacity: [0.5, 0, 0.5],
@@ -73,8 +73,8 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                 className="mt-2 text-center"
               >
                 <p className={`text-xs font-medium ${
-                  isActive ? 'text-finance-blue' :
-                  isCompleted ? 'text-green-400' :
+                  isActive ? 'text-gold' :
+                  isCompleted ? 'text-gold-dark' :
                   'text-gray-400'
                 }`}>
                   {t(step.labelKey)}
@@ -89,8 +89,8 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => 
                   transition={{ delay: index * 0.1 + 0.3 }}
                   className="absolute top-6 left-12 w-16 h-0.5 bg-gray-600 origin-left"
                   style={{
-                    background: isCompleted ? 'linear-gradient(to right, #10B981, #10B981)' :
-                              isActive ? 'linear-gradient(to right, #3B82F6, #8B5CF6)' :
+                    background: isCompleted ? 'linear-gradient(to right, #B8860B, #D4AF37)' :
+                              isActive ? 'linear-gradient(to right, #D4AF37, #ECD39A)' :
                               '#4B5563'
                   }}
                 />

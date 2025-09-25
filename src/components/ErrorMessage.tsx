@@ -34,14 +34,14 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
             repeatDelay: 3,
           }}
         >
-          <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-6 h-6 text-gold flex-shrink-0 mt-0.5" />
         </motion.div>
 
         <div className="flex-1">
-          <h3 className="text-red-400 font-semibold mb-2">
+          <h3 className="text-gold font-semibold mb-2">
             {t('common.error')}
           </h3>
-          <p className="text-red-200 text-sm leading-relaxed">
+          <p className="text-gold-dark text-sm leading-relaxed">
             {message}
           </p>
 
@@ -50,7 +50,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onRetry}
-              className="mt-4 flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg text-red-300 hover:text-red-200 transition-colors text-sm"
+            className="mt-4 flex items-center space-x-2 px-4 py-2 bg-white/6 hover:bg-white/8 border border-white/6 rounded-lg text-gold transition-colors text-sm"
             >
               <RefreshCw className="w-4 h-4" />
               <span>{t('common.retry')}</span>

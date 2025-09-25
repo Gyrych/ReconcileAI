@@ -80,19 +80,19 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         <div className="glass-effect p-4 rounded-xl text-center">
-          <Database className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+          <Database className="w-8 h-8 text-gold mx-auto mb-2" />
           <div className="text-2xl font-bold text-white">{standardEntries.length}</div>
           <div className="text-sm text-gray-300">{t('display.standardTitle')}</div>
         </div>
 
         <div className="glass-effect p-4 rounded-xl text-center">
-          <Database className="w-8 h-8 text-green-400 mx-auto mb-2" />
+          <Database className="w-8 h-8 text-gold mx-auto mb-2" />
           <div className="text-2xl font-bold text-white">{checkEntries.length}</div>
           <div className="text-sm text-gray-300">{t('display.checkTitle')}</div>
         </div>
 
         <div className="glass-effect p-4 rounded-xl text-center">
-          <CheckCircle className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+          <CheckCircle className="w-8 h-8 text-gold mx-auto mb-2" />
           <div className="text-2xl font-bold text-white">
             {standardEntries.length + checkEntries.length}
           </div>

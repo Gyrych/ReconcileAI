@@ -49,11 +49,11 @@ export const SummaryReport: React.FC<SummaryReportProps> = ({
             </div>
             <div>
               <div className="text-sm text-gray-300">金额一致</div>
-              <div className="text-xl font-bold text-green-400">{stats.match ?? '-'}</div>
+              <div className="text-xl font-bold text-gold">{stats.match ?? '-'}</div>
             </div>
             <div>
               <div className="text-sm text-gray-300">金额差异</div>
-              <div className="text-xl font-bold text-yellow-400">{stats.mismatch ?? '-'}</div>
+              <div className="text-xl font-bold text-gold">{stats.mismatch ?? '-'}</div>
             </div>
           </div>
           <div className="mt-3 text-sm text-gray-400">数据缺失：{stats.missing ?? '-'}</div>

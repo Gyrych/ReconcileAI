@@ -134,7 +134,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div className="glass-effect p-4 rounded-xl text-center">
-            <Brain className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+          <Brain className="w-8 h-8 text-gold mx-auto mb-2" />
             <div className="text-2xl font-bold text-white">{categoryNames.length}</div>
             <div className="text-sm text-gray-300">分类数量</div>
           </div>
@@ -145,9 +145,9 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
           </div>
 
           {mismatchCount > 0 && (
-            <div className="glass-effect p-4 rounded-xl text-center border border-yellow-400/30">
-              <AlertTriangle className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-yellow-400">{mismatchCount}</div>
+            <div className="glass-effect p-4 rounded-xl text-center border border-gold/20">
+              <AlertTriangle className="w-8 h-8 text-gold mx-auto mb-2" />
+              <div className="text-2xl font-bold text-gold">{mismatchCount}</div>
               <div className="text-sm text-gray-300">存在差异</div>
             </div>
           )}
@@ -165,8 +165,8 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
             </div>
             <div>
-              <h3 className="text-blue-300 font-medium">拖拽操作提示</h3>
-              <p className="text-blue-200 text-sm">
+              <h3 className="text-gold font-medium">拖拽操作提示</h3>
+              <p className="text-gold-dark text-sm">
                 {t('confirm.dragHint')} - AI分类结果可能需要人工调整
               </p>
             </div>
@@ -210,7 +210,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             onClick={onBack}
             className="flex items-center space-x-2 px-6 py-3 bg-gray-600/50 hover:bg-gray-600/70 text-white rounded-xl font-medium transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-gold" />
             <span>{t('common.previous')}</span>
           </motion.button>
 
@@ -220,7 +220,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             onClick={onSkip}
             className="flex items-center space-x-2 px-6 py-3 bg-yellow-600/50 hover:bg-yellow-600/70 text-white rounded-xl font-medium transition-colors"
           >
-            <SkipForward className="w-5 h-5" />
+            <SkipForward className="w-5 h-5 text-gold" />
             <span>{t('confirm.skipConfirm')}</span>
           </motion.button>
 
@@ -231,7 +231,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             className="flex items-center space-x-2 px-8 py-3 finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 rounded-xl font-semibold text-white transition-all"
           >
             <span>{t('confirm.proceed')}</span>
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5 text-gold" />
           </motion.button>
         </motion.div>
       </motion.div>

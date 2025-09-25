@@ -60,7 +60,7 @@ export const AmountComparison: React.FC<AmountComparisonProps> = ({
                 const tc = cat?.totalCheck ?? 0;
                 const diff = Math.abs(ts - tc);
                 const status = cat?.status ?? 'missing';
-                const statusColor = status === 'match' ? 'text-green-400' : status === 'mismatch' ? 'text-yellow-400' : 'text-red-400';
+                const statusColor = status === 'match' ? 'text-gold' : status === 'mismatch' ? 'text-gold' : 'text-red-400';
 
                 return (
                   <tr key={name} className="border-b border-gray-800">
