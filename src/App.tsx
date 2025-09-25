@@ -327,7 +327,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-bg-deep via-surface-deep to-bg-deep">
       {/* 背景装饰 */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -inset-10 opacity-20">
@@ -340,7 +340,7 @@ function AppContent() {
               repeat: Infinity,
               repeatType: 'reverse',
             }}
-            className="w-full h-full bg-gradient-to-r from-finance-blue/20 via-finance-purple/20 to-finance-pink/20"
+            className="w-full h-full bg-gradient-to-r from-gold/8 via-gold/5 to-transparent"
           />
         </div>
       </div>
@@ -348,65 +348,7 @@ function AppContent() {
       <div className="relative z-10">
         <Header />
 
-        {/* 调试面板 */}
-        <div className="fixed top-4 right-4 z-50">
-          <motion.div
-            className="bg-black/80 backdrop-blur-md border border-gray-600 rounded-lg p-3 text-xs text-white font-mono max-w-xs"
-            initial={{ opacity: 0, x: 300 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1 }}
-          >
-            <div className="font-bold mb-2 text-yellow-400">🔧 调试面板</div>
-            <div className="space-y-1">
-              <div>状态: <span className="text-blue-400">{String(state.value)}</span></div>
-              <div>状态机状态: <span className={(state as any).status === 'active' ? 'text-green-400' : (state as any).status === 'error' ? 'text-red-400' : 'text-yellow-400'}>
-                {(state as any).status || 'unknown'}
-              </span></div>
-              <div>步骤: <span className="text-green-400">{context.currentStep}</span></div>
-              <div>加载中: <span className={context.isLoading ? 'text-red-400' : 'text-green-400'}>
-                {context.isLoading ? '是' : '否'}
-              </span></div>
-              <div>有错误: <span className={context.error ? 'text-red-400' : 'text-green-400'}>
-                {context.error ? '是' : '否'}
-              </span></div>
-              <div>标准表: <span className={context.standardFile ? 'text-green-400' : 'text-red-400'}>
-                {context.standardFile ? '有' : '无'}
-              </span></div>
-              <div>核对表: <span className={context.checkFile ? 'text-green-400' : 'text-red-400'}>
-                {context.checkFile ? '有' : '无'}
-              </span></div>
-              <div>API密钥: <span className={context.apiKey ? 'text-green-400' : 'text-red-400'}>
-                {context.apiKey ? `${context.apiKey.length}字符` : '无'}
-              </span></div>
-              <div>Context API: <span className={contextApiKey ? 'text-green-400' : 'text-red-400'}>
-                {contextApiKey ? `${contextApiKey.length}字符` : '无'}
-              </span></div>
-            </div>
-
-            {/* 手动同步按钮 */}
-            <div className="mt-3 pt-2 border-t border-gray-600 space-y-1">
-              <button
-                onClick={() => {
-                  console.log('🔄 手动同步API Key（无门禁，直接发送）');
-                  sendSetApiKey();
-                }}
-                className="w-full px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded text-xs text-blue-300 hover:text-blue-200 transition-colors"
-              >
-                🔄 同步API
-              </button>
-
-              <button
-                onClick={() => {
-                  console.log('🔄 重置状态机...');
-                  sendEvent('RESTART');
-                }}
-                className="w-full px-2 py-1 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded text-xs text-red-300 hover:text-red-200 transition-colors"
-              >
-                🔄 重置状态机
-              </button>
-            </div>
-          </motion.div>
-        </div>
+        {/* 调试面板已移除：页面不再展示调试信息 */}
 
         <main className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
@@ -448,53 +390,6 @@ declare global {
   }
 }
 
-// 添加全局调试函数
-if (typeof window !== 'undefined') {
-  window.testStateMachine = () => {
-    console.log('🧪 直接测试状态机...');
-    const event = new CustomEvent('test-state-machine', {
-      detail: { type: 'NEXT' }
-    });
-    window.dispatchEvent(event);
-  };
-
-  // 添加API Key同步函数
-  window.syncApiKey = () => {
-    console.log('🔄 手动同步API Key...');
-    // 触发一个自定义事件来同步API Key
-    const syncEvent = new CustomEvent('sync-api-key');
-    window.dispatchEvent(syncEvent);
-  };
-
-  // 添加直接访问状态机的函数
-  window.debugStateMachine = {
-    sendEvent: (eventType: string) => {
-      console.log('🧪 直接发送状态机事件:', eventType);
-      const event = new CustomEvent('test-state-machine', {
-        detail: { type: eventType }
-      });
-      window.dispatchEvent(event);
-    },
-    getCurrentState: () => {
-      // 这里我们无法直接访问内部状态，但可以通过全局变量存储
-      console.log('🔍 当前状态信息请查看调试面板');
-    },
-    forceNext: () => {
-      console.log('🧪 强制发送NEXT事件');
-      window.debugStateMachine.sendEvent('NEXT');
-    },
-    forceSyncApiKey: () => {
-      console.log('🔄 强制同步API Key');
-      window.syncApiKey();
-    }
-  };
-
-  console.log('🔧 调试命令已加载:');
-  console.log('   window.testStateMachine() - 测试状态机');
-  console.log('   window.debugStateMachine.forceNext() - 强制发送NEXT事件');
-  console.log('   window.debugStateMachine.sendEvent("NEXT") - 发送特定事件');
-  console.log('   window.syncApiKey() - 同步API Key');
-  console.log('   window.debugStateMachine.forceSyncApiKey() - 强制同步API Key');
-}
+  // 已移除全局页面级调试函数，避免在生产或演示环境暴露调试入口
 
 export default App;

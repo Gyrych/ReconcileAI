@@ -24,20 +24,49 @@
     100% { background-position: 0% 50%; }
   }
 
+  /* 玻璃质感：更暗的半透明底，带有细微金色边框，适用于头部与卡片 */
   .glass-effect {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
+    /* 背景使用深色半透明以保持高贵沉稳 */
+    background: rgba(10,10,12,0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(212,175,55,0.08); /* 金色细边 */
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:scale-105;
+    @apply transition-all duration-300 hover:scale-105;
+    /* hover 的阴影改为金色柔和发光（通过 tailwind 的 boxShadow 配置） */
+    --tw-shadow: 0 6px 30px rgba(212,175,55,0.12), 0 0 8px rgba(212,175,55,0.05);
   }
 
+  /* 条目卡片：暗色玻璃底 + 金色边与点缀 */
   .entry-card {
-    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 transition-all duration-300;
+    background: rgba(15,15,18,0.54); /* 暗玻璃背景 */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(212,175,55,0.06); /* 细微金色边 */
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.25s ease;
   }
 
   .entry-card:hover {
-    @apply bg-white/10 border-white/20 shadow-lg;
+    background: rgba(20,18,20,0.6);
+    border-color: rgba(212,175,55,0.12);
+    box-shadow: 0 8px 30px rgba(212,175,55,0.14); /* hover 时金色发光 */
+    transform: translateY(-4px);
+  }
+
+  /* 金色文本与发光辅助类 */
+  .text-gold { color: #D4AF37; }
+  .text-gold-dark { color: #B8860B; }
+  .glow-gold {
+    box-shadow: 0 6px 30px rgba(212,175,55,0.18), 0 0 8px rgba(212,175,55,0.08);
+  }
+
+  /* 背景金色渐变装饰（低不透明度，用于覆盖层或图标容器） */
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(236,211,154,0.06) 60%, rgba(212,175,55,0.06) 100%);
   }
 
   .finance-gradient {

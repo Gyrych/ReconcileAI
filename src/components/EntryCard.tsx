@@ -94,7 +94,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
         entry-card cursor-pointer
         ${isDragging ? 'z-50 rotate-2 shadow-2xl' : ''}
         ${isStandard
-          ? 'border-blue-400/30 hover:border-blue-400/50'
+          ? 'border-gold/10 hover:border-gold/20'
           : 'border-green-400/30 hover:border-green-400/50'
         }
         ${className}
@@ -105,7 +105,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
       {/* 背景渐变效果 */}
       <div className={`absolute inset-0 rounded-xl opacity-20 ${
         isStandard
-          ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20'
+          ? 'bg-gold-gradient'
           : 'bg-gradient-to-br from-green-500/20 to-emerald-500/20'
       }`} />
 
@@ -116,7 +116,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
             variants={iconVariants}
             className={`p-2 rounded-lg ${
               isStandard
-                ? 'bg-blue-500/20 text-blue-300'
+                ? 'bg-gold/8 text-gold'
                 : 'bg-green-500/20 text-green-300'
             }`}
           >
@@ -133,7 +133,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
             transition={{ delay: animate ? index * 0.1 + 0.3 : 0.3 }}
             className={`px-2 py-1 text-xs font-medium rounded-full ${
               isStandard
-                ? 'bg-blue-500/20 text-blue-300'
+                ? 'bg-gold/10 text-gold'
                 : 'bg-green-500/20 text-green-300'
             }`}
           >
@@ -181,8 +181,8 @@ export const EntryCard: React.FC<EntryCardProps> = ({
           className="flex items-center justify-between"
         >
           <div className="flex items-center space-x-1">
-            <DollarSign className="w-4 h-4 text-yellow-400" />
-            <span className="text-yellow-400 font-bold text-lg">
+            <DollarSign className="w-4 h-4 text-gold" />
+            <span className="text-gold font-bold text-lg">
               {entry.amount.toLocaleString('zh-CN', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -215,7 +215,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
           }}
           className={`h-0.5 mt-3 rounded-full ${
             isStandard
-              ? 'bg-gradient-to-r from-blue-400 to-purple-400'
+              ? 'bg-gradient-to-r from-gold/40 to-gold/10'
               : 'bg-gradient-to-r from-green-400 to-emerald-400'
           }`}
         />
@@ -225,7 +225,7 @@ export const EntryCard: React.FC<EntryCardProps> = ({
       <motion.div
         className={`absolute inset-0 rounded-xl opacity-0 ${
           isStandard
-            ? 'shadow-lg shadow-blue-500/20'
+            ? 'shadow-lg shadow-gold/20'
             : 'shadow-lg shadow-green-500/20'
         }`}
         whileHover={{ opacity: 1 }}

@@ -246,21 +246,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         />
       </div>
 
-      {/* 调试信息 */}
-      <motion.div
-        className="mt-6 p-4 bg-gray-900/50 border border-gray-600 rounded-lg"
-        initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: 'auto' }}
-      >
-        <h4 className="text-white font-medium mb-2">调试信息：</h4>
-        <div className="space-y-1 text-sm text-gray-300">
-          <div>标准表文件：{standardStatus.file ? standardStatus.file.name : '未选择'} {standardStatus.isValid ? '✅' : '❌'}</div>
-          <div>待核对表文件：{checkStatus.file ? checkStatus.file.name : '未选择'} {checkStatus.isValid ? '✅' : '❌'}</div>
-          <div>可以进入下一步：{canProceed ? '✅ 是' : '❌ 否'}</div>
-          {standardStatus.error && <div className="text-red-400">标准表错误：{standardStatus.error}</div>}
-          {checkStatus.error && <div className="text-red-400">待核对表错误：{checkStatus.error}</div>}
-        </div>
-      </motion.div>
+      {/* 调试信息区已移除（仅在开发或诊断脚本中保留） */}
 
       {/* 下一步按钮 */}
       <motion.div
@@ -285,8 +271,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               },
             });
 
-            // 显示点击反馈
-            alert('✅ 按钮点击成功！请查看控制台日志。');
+            // 点击反馈保留为控制台日志，移除页面弹窗以改善用户体验
+            console.log('✅ 下一步按钮点击（已触发 onNext）');
 
             if (!canProceed) {
               console.error('❌ 无法进入下一步：', {
@@ -301,7 +287,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 standardIsValid: standardStatus.isValid,
                 checkIsValid: checkStatus.isValid,
               });
-              alert(`无法进入下一步：${standardStatus.error || checkStatus.error || '请检查文件格式'}`);
+              // 将错误反馈改为控制台输出并通过可视化提示处理（UI 层已显示错误）
+              console.error('无法进入下一步：', standardStatus.error || checkStatus.error || '请检查文件格式');
+              return;
               return;
             }
 
@@ -341,68 +329,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           </p>
         )}
 
-        {/* 调试按钮 */}
-        <div className="mt-4 flex justify-center space-x-2">
-          <button
-            onClick={() => {
-              console.log('🧪 测试状态机事件发送');
-              // 直接调用父组件的状态机事件
-              if (typeof window !== 'undefined' && (window as any).testStateMachine) {
-                (window as any).testStateMachine();
-              }
-            }}
-            className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-300 hover:text-blue-200 transition-colors text-sm"
-          >
-            🧪 测试状态机
-          </button>
-          <button
-            onClick={() => {
-              console.log('🔄 强制刷新调试面板');
-              // 强制重新渲染
-              window.location.reload();
-            }}
-            className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-300 hover:text-green-200 transition-colors text-sm"
-          >
-            🔄 强制刷新
-          </button>
-          <button
-            onClick={() => {
-              console.log('🩺 诊断当前状态');
-              console.log('📦 当前组件状态:', {
-                standardStatus: {
-                  file: standardStatus.file?.name,
-                  isValid: standardStatus.isValid,
-                  error: standardStatus.error
-                },
-                checkStatus: {
-                  file: checkStatus.file?.name,
-                  isValid: checkStatus.isValid,
-                  error: checkStatus.error
-                },
-                canProceed,
-                standardFile,
-                checkFile
-              });
-              alert('请查看控制台的诊断信息');
-            }}
-            className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded-lg text-purple-300 hover:text-purple-200 transition-colors text-sm"
-          >
-            🩺 诊断状态
-          </button>
-          <button
-            onClick={() => {
-              console.log('🔄 强制同步API Key');
-              // 强制触发API Key同步
-              if (typeof window !== 'undefined' && window.syncApiKey) {
-                window.syncApiKey();
-              }
-              alert('API Key同步已触发，请查看控制台');
-            }}
-            className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-500/30 rounded-lg text-yellow-300 hover:text-yellow-200 transition-colors text-sm"
-          >
-            🔄 同步API
-          </button>
-        </div>
+        {/* 调试按钮已移除：避免在页面中展示调试操作 */}
       </motion.div>
     </motion.div>
   );

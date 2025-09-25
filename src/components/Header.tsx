@@ -49,7 +49,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="relative z-20 bg-black/20 backdrop-blur-md border-b border-white/10">
+    <header className="relative z-20 glass-effect border-b border-gold/10">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
@@ -58,11 +58,11 @@ export const Header: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-3"
           >
-            <div className="finance-gradient p-2 rounded-xl">
-              <FileText className="w-8 h-8 text-white" />
+            <div className="p-2 rounded-xl bg-gold-gradient">
+              <FileText className="w-8 h-8 text-gold" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">财务核对AI</h1>
+              <h1 className="text-2xl font-bold text-gold">财务核对AI</h1>
               <p className="text-sm text-gray-300">Financial Reconciliation Agent</p>
             </div>
           </motion.div>
@@ -76,10 +76,10 @@ export const Header: React.FC = () => {
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+              className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/6 hover:bg-white/10 transition-colors"
             >
-              <Languages className="w-4 h-4 text-white" />
-              <span className="text-white text-sm">
+              <Languages className="w-4 h-4 text-gold" />
+              <span className="text-gold text-sm">
                 {language === 'zh-CN' ? 'EN' : '中文'}
               </span>
             </button>
@@ -100,7 +100,7 @@ export const Header: React.FC = () => {
                     });
                     setApiKey(e.target.value);
                   }}
-                  className={`px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-finance-blue/50 focus:border-transparent text-sm w-64 ${
+                  className={`px-3 py-2 bg-white/6 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-transparent text-sm w-64 ${
                     isValid ? 'border-green-400/50' : 'border-yellow-400/50'
                   }`}
                 />
@@ -125,11 +125,11 @@ export const Header: React.FC = () => {
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   isTestingApi
                     ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                    : 'bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 hover:text-blue-200 border border-blue-500/30'
+                    : 'bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10'
                 }`}
                 title="测试API连接"
               >
-                <TestTube className="w-4 h-4" />
+                <TestTube className="w-4 h-4 text-gold" />
               </button>
             </div>
           </motion.div>

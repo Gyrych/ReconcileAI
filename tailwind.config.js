@@ -53,17 +53,30 @@ module.exports = {
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
       },
-      // 自定义主题颜色：为项目提供背景、前景与边框颜色，生成 bg-background / text-foreground / border-border 工具类
+      // 自定义主题颜色：黑金主题与基础色票，用于生成 bg- / text- / border- 工具类
       colors: {
-        background: '#0B1220',
+        background: '#07080A', // 更深的黑色背景
+        'bg-deep': '#07080A',
+        'surface-deep': '#0B0D10',
         foreground: '#E6EEF8',
-        border: 'rgba(255,255,255,0.08)',
+        border: 'rgba(255,255,255,0.06)',
+        // 金色阶梯：主金、暗金、柔金
+        gold: {
+          DEFAULT: '#D4AF37',
+          dark: '#B8860B',
+          soft: '#ECD39A',
+        },
+        // 保留原有的金融色作为辅助色
         'finance-blue': '#3B82F6',
         'finance-green': '#10B981',
         'finance-red': '#EF4444',
         'finance-yellow': '#F59E0B',
         'finance-purple': '#8B5CF6',
         'finance-pink': '#EC4899',
+      },
+      // 自定义投影：用于金色柔和发光效果
+      boxShadow: {
+        'gold-glow': '0 6px 30px rgba(212,175,55,0.18), 0 0 8px rgba(212,175,55,0.08)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

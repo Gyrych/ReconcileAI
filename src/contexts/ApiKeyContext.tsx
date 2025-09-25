@@ -36,13 +36,7 @@ export const ApiKeyProvider: React.FC<ApiKeyProviderProps> = ({ children }) => {
   const validateApiKey = (key: string) => {
     // DeepSeek API Key格式验证：以sk-开头，长度在30-200字符之间
     const isValidFormat = key.startsWith('sk-') && key.length >= 30 && key.length <= 200;
-    console.log('API Key验证:', {
-      keyLength: key.length,
-      startsWithSk: key.startsWith('sk-'),
-      lengthInRange: key.length >= 30 && key.length <= 200,
-      isValidFormat,
-      timestamp: new Date().toISOString()
-    });
+    // 已移除开发调试日志，避免在生产环境泄露敏感信息
     setIsValid(isValidFormat);
     return isValidFormat;
   };
