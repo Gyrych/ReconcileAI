@@ -154,7 +154,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
         </motion.div>
 
         {/* 拖拽提示 */}
-        <motion.div
+            <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
@@ -179,7 +179,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+            className="grid grid-cols-1 gap-6"
           >
             {categoryNames.map((categoryName, index) => (
               <motion.div
@@ -191,6 +191,18 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
                 <CategoryCard
                   categoryName={categoryName}
                   categoryData={categories[categoryName]}
+                  onToggleIgnore={(name, ignored) => {
+                    // 更新本地 categories 状态：将 ignored 标记写回到状态机或父组件
+                    // 使用 window.__reconcileSend 如果 send 在此上下文不可用
+                    const sender = (window as any).__reconcileSend ?? ((event: any) => console.warn('无法发送事件：send 未定义', event));
+                    try {
+                      sender({ type: 'TOGGLE_IGNORE_CATEGORY', categoryName: name, ignored });
+                    } catch (e) {
+                      console.warn('发送 TOGGLE_IGNORE_CATEGORY 事件失败，尝试直接更新全局：', e);
+                      // 作为回退，直接派发一个 CustomEvent
+                      window.dispatchEvent(new CustomEvent('toggle-ignore-category', { detail: { categoryName: name, ignored } }));
+                    }
+                  }}
                 />
               </motion.div>
             ))}
@@ -208,7 +220,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onBack}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-600/50 hover:bg-gray-600/70 text-white rounded-xl font-medium transition-colors"
+            className="flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10"
           >
             <ArrowLeft className="w-5 h-5 text-gold" />
             <span>{t('common.previous')}</span>
@@ -218,7 +230,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onSkip}
-            className="flex items-center space-x-2 px-6 py-3 bg-yellow-600/50 hover:bg-yellow-600/70 text-white rounded-xl font-medium transition-colors"
+            className="flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10"
           >
             <SkipForward className="w-5 h-5 text-gold" />
             <span>{t('confirm.skipConfirm')}</span>
@@ -228,7 +240,7 @@ export const ClassificationBoard: React.FC<ClassificationBoardProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onNext}
-            className="flex items-center space-x-2 px-8 py-3 finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 rounded-xl font-semibold text-white transition-all"
+            className="flex items-center space-x-2 px-8 py-3 rounded-xl font-semibold transition-all bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10"
           >
             <span>{t('confirm.proceed')}</span>
             <ArrowRight className="w-5 h-5 text-gold" />

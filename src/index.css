@@ -12,6 +12,21 @@
   }
 }
 
+/* 页面级别强制隐藏横向滚动条，防止任何容器出现横向滚动 */
+html, body {
+  overflow-x: hidden;
+}
+
+/* WebKit 横向滚动条全局隐藏（额外保险） */
+::-webkit-scrollbar:horizontal {
+  height: 0 !important;
+}
+
+/* 对所有可滚动容器，优先使用我们定义的窄滚动条样式，且确保横向滚动条不可见 */
+* {
+  -ms-overflow-style: auto;
+}
+
 @layer components {
   .animate-gradient {
     background-size: 400% 400%;
@@ -67,6 +82,42 @@
   /* 背景金色渐变装饰（低不透明度，用于覆盖层或图标容器） */
   .bg-gold-gradient {
     background: linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(236,211,154,0.06) 60%, rgba(212,175,55,0.06) 100%);
+  }
+
+  /* 自定义滚动条：窄、精致的灰色滚动条（垂直）并隐藏横向滚动条 */
+  .scrollbar-thin {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(150,150,150,0.6) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px; /* 小的 horizontal 滚动条高度 */
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(150,150,150,0.6);
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(150,150,150,0.8);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* 隐藏横向滚动条（webkit） */
+  .scrollbar-thin::-webkit-scrollbar:horizontal {
+    height: 0px;
+  }
+
+  /* 如果需要彻底隐藏页面横向滚动条（防止布局抖动），可在需要时给容器添加 no-h-scroll */
+  .no-h-scroll {
+    overflow-x: hidden !important;
   }
 
   .finance-gradient {

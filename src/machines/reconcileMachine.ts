@@ -353,6 +353,22 @@ export const reconcileMachine = createMachine({
         MOVE_ENTRY: {
           actions: 'moveEntry',
         },
+        TOGGLE_IGNORE_CATEGORY: {
+          actions: assign({
+            categories: ({ context, event }: any) => {
+              if (!context.categories) return context.categories;
+              const { categoryName, ignored } = event as any;
+              const categories = { ...context.categories };
+              if (categories[categoryName]) {
+                categories[categoryName] = {
+                  ...categories[categoryName],
+                  ignored: !!ignored,
+                };
+              }
+              return categories;
+            }
+          })
+        },
         NEXT: 'calculate',
         SKIP_CONFIRM: 'calculate',
         BACK: 'aiClassify',
@@ -365,7 +381,11 @@ export const reconcileMachine = createMachine({
       invoke: {
         src: 'calculateAmounts',
         input: ({ context }: any) => ({
-          categories: context.categories
+          // 过滤掉 ignored 为 true 的 categories，使后续计算忽略这些类别
+          categories: Object.fromEntries(
+            // 将 entries 显式为 [string, any]，并过滤掉被标记为 ignored 的类别
+            (Object.entries(context.categories || {}) as [string, any][]).filter(([, cat]) => !((cat as any).ignored))
+          )
         }),
         onDone: {
           target: 'compare',

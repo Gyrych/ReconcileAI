@@ -21,6 +21,7 @@ import { ErrorMessage } from './components/ErrorMessage';
 function AppContent() {
   const [state, send] = useMachine(reconcileMachine);
   const { context } = state;
+  const { apiKey: providedApiKey } = useApiKey();
   // 暴露当前 state 和 send 以便在控制台调试和确保发送到正确的实例
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -327,8 +328,8 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-bg-deep via-surface-deep to-bg-deep">
       {/* 背景装饰 */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -inset-10 opacity-20">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -inset-10 opacity-20 pointer-events-none">
           <motion.div
             animate={{
               backgroundPosition: ['0% 0%', '100% 100%'],
@@ -338,7 +339,7 @@ function AppContent() {
               repeat: Infinity,
               repeatType: 'reverse',
             }}
-            className="w-full h-full bg-gradient-to-r from-gold/8 via-gold/5 to-transparent"
+            className="w-full h-full bg-gradient-to-r from-gold/8 via-gold/5 to-transparent pointer-events-none"
           />
         </div>
       </div>
@@ -348,7 +349,7 @@ function AppContent() {
 
         {/* 调试面板已移除：页面不再展示调试信息 */}
 
-        <main className="container mx-auto px-4 py-8">
+        <main className={`container mx-auto px-4 py-8 ${!providedApiKey ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="max-w-6xl mx-auto">
             <StepIndicator currentStep={context.currentStep as ReconcileState} />
 

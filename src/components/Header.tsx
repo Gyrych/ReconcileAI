@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { DeepSeekService } from '../services/deepseekService';
 
 export const Header: React.FC = () => {
-  const { t } = useTranslation();
+  useTranslation();
   const { language, toggleLanguage } = useLanguage();
   const { apiKey, setApiKey, isValid } = useApiKey();
   const [isTestingApi, setIsTestingApi] = useState(false);
@@ -62,8 +62,8 @@ export const Header: React.FC = () => {
               <FileText className="w-8 h-8 text-gold" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gold">财务核对AI</h1>
-              <p className="text-sm text-gray-300">Financial Reconciliation Agent</p>
+              <h1 className="text-2xl font-bold text-gold">Reconcile AI</h1>
+              <p className="text-sm text-gray-300">财务AI对账系统</p>
             </div>
           </motion.div>
 
@@ -86,21 +86,16 @@ export const Header: React.FC = () => {
 
             {/* API Key Input */}
             <div className="flex items-center space-x-2">
-              <Key className={`w-4 h-4 ${isValid ? 'text-green-400' : 'text-yellow-400'}`} />
+              <span className="text-sm text-gold font-medium mr-2">DeepSeek API</span>
+              <Key className={`w-4 h-4 text-gold`} />
               <div className="relative">
                 <input
                   type="password"
-                  placeholder={t('api.keyPlaceholder')}
                   value={apiKey}
                   onChange={(e) => {
-                    console.log('API密钥输入变更:', {
-                      hasValue: !!e.target.value,
-                      length: e.target.value.length,
-                      timestamp: new Date().toISOString()
-                    });
                     setApiKey(e.target.value);
                   }}
-                  className={`px-3 py-2 bg-white/6 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-transparent text-sm w-64 ${
+                  className={`px-3 py-2 bg-white/90 border rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-transparent text-sm w-64 ${
                     isValid ? 'border-green-400/50' : 'border-yellow-400/50'
                   }`}
                 />

@@ -9,12 +9,14 @@ interface CategoryCardProps {
   categoryName: string;
   categoryData: CategoryData[string];
   onEntryClick?: (entryId: string) => void;
+  onToggleIgnore?: (categoryName: string, ignored: boolean) => void;
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
   categoryName,
   categoryData,
   onEntryClick,
+  onToggleIgnore,
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: categoryName,
@@ -112,7 +114,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           </div>
 
           {/* 条目统计 */}
-            <div className="flex items-center space-x-4 text-sm">
+          <div className="flex items-center space-x-4 text-sm">
             <div className="flex items-center space-x-1 text-gold">
               <Users className="w-4 h-4 text-gold" />
               <span>{categoryData.standard.length}</span>
@@ -120,6 +122,19 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
             <div className="flex items-center space-x-1 text-gold">
               <Users className="w-4 h-4 text-gold" />
               <span>{categoryData.check.length}</span>
+            </div>
+            <div className="ml-4">
+              <label className="inline-flex items-center space-x-2 text-sm">
+              <input
+                  type="checkbox"
+                  checked={!!categoryData.ignored}
+                  onChange={(e) => {
+                    onToggleIgnore?.(categoryName, e.target.checked);
+                  }}
+                  className="form-checkbox text-gold h-4 w-4"
+                />
+                <span className="text-sm text-gold">忽略分类</span>
+              </label>
             </div>
           </div>
         </div>
@@ -157,7 +172,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         )}
 
         {/* 条目列表 */}
-        <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent">
           {/* 标准表条目 */}
           {categoryData.standard.length > 0 && (
             <div className="space-y-2">

@@ -21,6 +21,8 @@ export interface CategoryData {
     totalCheck: number;
     difference: number;
     status: 'match' | 'mismatch' | 'missing';
+    // 如果为 true，则后续步骤会跳过该类别的数据处理
+    ignored?: boolean;
   };
 }
 

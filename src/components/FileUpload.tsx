@@ -316,7 +316,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           whileHover={canProceed ? { scale: 1.05 } : {}}
           className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
             canProceed
-              ? 'finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 transform'
+              ? 'bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10 transform'
               : 'bg-gray-600 cursor-not-allowed'
           } text-white`}
         >

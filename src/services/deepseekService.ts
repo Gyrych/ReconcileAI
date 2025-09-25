@@ -126,28 +126,58 @@ export class DeepSeekService {
     const formatIdLines = (entries: Entry[]) => entries.map(e => `${e.id} | 金额: ${e.amount}元`).join('\n');
 
     return `
-注意（非常重要）：本次分类要求更精细的层级化输出，严格遵守以下规则：
+注意（非常重要）：请直接生成细粒度的类别，尽量把相似条目分到更小的、语义明确的类别中（不要依赖本地后处理来细分）。下面给出两个示例（示例输入 -> 期望输出），请严格学习示例的输出风格与粒度，然后对后面的实际条目进行同样处理。严格遵守以下要求：
 
-1) **严格 ID-only**：所有类别内的成员必须使用输入条目的 ID（例如："standard_1" 或 "check_10"），绝对不要在成员数组中返回完整名称、上下文或额外说明。
-2) **层级子类强制化规则**：如果任何顶级类别包含超过 5 个成员，请务必在该类别下创建若干子类别（字段名："subcategories"，可递归），直至每个子类别的成员数量不超过 5。子类别名称要简洁、描述性强（建议 4-12 字）。
-3) **不要返回空类别**：若某类别的 standard/check 均为空，请省略该类别。
-4) **输出格式严格性**：仅返回纯 JSON 对象，顶层为若干类别键；每个类别对象必须包含至少一个 of: "standard", "check" 或 "subcategories"。示例中可选包含 "subcategories"（递归结构）。不要包含 code fences、解释性文字或其它非 JSON 内容。
-5) **排序/确定性**：请尽量把更通用的父类放在前面（模型会尽力但非强制），并确保 JSON 可直接解析。
+示例1 输入：
+standard_1 | 金额: 100元
+standard_2 | 金额: 120元
+standard_3 | 金额: 50元
+standard_4 | 金额: 60元
+standard_5 | 金额: 300元
+standard_6 | 金额: 45元
+check_1    | 金额: 100元
+check_2    | 金额: 50元
 
-示例返回格式（务必仅做模板参考，仍然使用 ID-only）：
+示例1 期望输出（细粒度，<=3成员/类）：
 {
-  "工资福利支出": {
-    "standard": ["standard_61","standard_62"],
-    "check": ["check_10"],
-    "subcategories": {
-      "基本工资": { "standard": ["standard_96"], "check": [] },
-      "社会保障": { "standard": ["standard_66","standard_68"], "check": ["check_11"] }
-    }
-  },
-  "物资采购": {
-    "standard": ["standard_50","standard_51"],
-    "check": ["check_34"]
-  }
+  "基本工资": { "standard": ["standard_1","standard_2"], "check": ["check_1"] },
+  "办公用品/文具": { "standard": ["standard_3"], "check": ["check_2"] },
+  "办公用品/纸张": { "standard": ["standard_4"], "check": [] },
+  "社保": { "standard": ["standard_5"], "check": [] },
+  "差旅/交通": { "standard": ["standard_6"], "check": [] }
+}
+
+示例2 输入：
+standard_10 | 金额: 2000元
+standard_11 | 金额: 2100元
+standard_12 | 金额: 19.5元
+standard_13 | 金额: 28.0元
+check_20    | 金额: 2000元
+check_21    | 金额: 19.5元
+
+示例2 期望输出（细粒度）：
+{
+  "厂商A/物料采购": { "standard": ["standard_10"], "check": ["check_20"] },
+  "厂商B/零星用品": { "standard": ["standard_11"], "check": [] },
+  "办公用品/笔": { "standard": ["standard_12"], "check": ["check_21"] },
+  "办公用品/胶带": { "standard": ["standard_13"], "check": [] }
+}
+
+请参考以上示例的粒度与命名方式，继续按下面的规则处理真实条目：
+
+1) **细粒度目标**：每个最终分类（category 或 subcategory）最多包含 3 个成员；如果原始自然簇大于 3，请在该类别下创建有描述性的子类别，直到每个子类别最多包含 3 个成员。
+2) **名称来源优先**：类别名称优先从名称列直接提炼短语（1-3 词），若不可提炼则以名称列内容做语义概括生成简短类别名（4-12 字），切勿使用含糊的大类词汇。
+3) **唯一归属**：每个条目必须只出现在一个类别（或其子类别）中，不能重复分配；若有冲突请决策保留最语义匹配的类别。
+4) **避免大/小类混用**：不要在顶层同时出现语义重叠的大类与其未被细分的小类。若子类无法细分清楚，请命名该子类为“其他小类”；若无法归入任何已知大类，创建顶层“其他大类”。
+5) **输出格式与成员标识**：仅返回可解析的 JSON，顶层为类别键；每个类别对象必须包含至少一个 of: "standard", "check" 或 "subcategories"（可递归）。类别成员必须使用输入条目的 ID（例如 "standard_1" / "check_10"）。不要返回解释性文本或 code fences。
+6) **稳定性与确定性**：输出应尽量稳定、可重复。若可能，使用低温度并提供明确的命名样式。
+
+示例（仅作格式参考）：
+{
+  "基本工资": { "standard": ["standard_12"], "check": [] },
+  "社保": { "standard": ["standard_23"], "check": ["check_5"] },
+  "物资采购/办公用品": { "standard": ["standard_34","standard_45"], "check": [] },
+  "其他小类": { "standard": ["standard_99"], "check": [] }
 }
 
 标准表条目（仅作示例）：
@@ -156,7 +186,7 @@ ${formatIdLines(standardEntries)}
 待核对表条目（仅作示例）：
 ${formatIdLines(checkEntries)}
 
-请严格按照上述要求输出，若不能严格遵守则返回错误信息（但不要在最终输出中包含错误信息或非 JSON 文本）。
+请严格按照上述要求输出，如果无法满足这些约束，请返回可解析的错误 JSON（不要返回非 JSON 文本）。
 `;
   }
 
@@ -377,6 +407,96 @@ ${categorySummary}
     };
 
     walkAndCollect(parsed, null);
+
+    // 在生成最终结果前，对过于粗的类别进行进一步本地细分（无需额外AI调用）
+    // 规则：当一个类别成员总数超过阈值时，尝试根据名称中的高频词将其拆分为若干子类别，
+    // 保证每个子类别语义相对一致；无法拆分的项归入 "其他小类"。
+    const splitLargeCategories = (cats: CategoryData, threshold = 5) => {
+      const stopwords = new Set(['的', '和', '与', '及', '、', '-', '/', '（', '）', '项目', '费用', '款项', '支付']);
+
+      const normalize = (s: string) => String(s || '').toLowerCase().replace(/[\s\-_/，。()（）\[\]]+/g, ' ').trim();
+
+      const extractTokens = (name: string) => {
+        const normalized = normalize(name).replace(/[\p{P}$+<=>^`|~]/gu, ' ');
+        const tokens = normalized.split(/\s+/).filter(Boolean).map(t => t.replace(/^\d+|\d+$/g, ''));
+        return tokens.filter(tok => tok && !stopwords.has(tok) && tok.length > 1);
+      };
+
+      const newCats: CategoryData = { ...cats };
+      for (const catName of Object.keys(cats)) {
+        const cat = cats[catName];
+        const members = [...(cat.standard || []), ...(cat.check || [])];
+        if (members.length <= threshold) continue;
+
+        // 统计 token 频次
+        const tokenCounts: Record<string, number> = {};
+        const entryTokens: Map<string, string[]> = new Map();
+        for (const e of members) {
+          const toks = extractTokens(e.name || '');
+          entryTokens.set(e.id, toks);
+          for (const t of toks) tokenCounts[t] = (tokenCounts[t] || 0) + 1;
+        }
+
+        // 选取出现频率 >=2 的 token，按频率降序
+        const candidateTokens = Object.entries(tokenCounts).filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).map(r => r[0]);
+        if (candidateTokens.length === 0) continue;
+
+        const subcategories: Record<string, any> = {};
+        const assigned = new Set<string>();
+
+        for (const tok of candidateTokens) {
+          const std: Entry[] = [];
+          const chk: Entry[] = [];
+          for (const e of members) {
+            if (assigned.has(e.id)) continue;
+            const toks = entryTokens.get(e.id) || [];
+            if (toks.includes(tok)) {
+              if (e.source === 'standard') std.push(e); else chk.push(e);
+              assigned.add(e.id);
+            }
+          }
+          if (std.length + chk.length >= 2) {
+            // 子类名尽量使用 token 本身（首字大写），若 token 过长，截断
+            const subName = tok.length <= 12 ? tok : tok.slice(0, 12);
+            subcategories[subName] = { standard: std, check: chk };
+          }
+        }
+
+        // 未被分配的成员
+        const remaining = members.filter(e => !assigned.has(e.id));
+        const remStd = remaining.filter(e => e.source === 'standard');
+        const remChk = remaining.filter(e => e.source === 'check');
+        if (remaining.length > 0) {
+          subcategories['其他小类'] = { standard: remStd, check: remChk };
+        }
+
+        // 如果分裂产生了子类，则替换原类别为包含 subcategories 的结构
+        if (Object.keys(subcategories).length > 0) {
+          // 重新计算 totals
+          const newStd = Object.values(subcategories).flatMap((s: any) => s.standard || []);
+          const newChk = Object.values(subcategories).flatMap((s: any) => s.check || []);
+          newCats[catName] = {
+            standard: newStd,
+            check: newChk,
+            totalStandard: newStd.reduce((s: number, it: Entry) => s + it.amount, 0),
+            totalCheck: newChk.reduce((s: number, it: Entry) => s + it.amount, 0),
+            difference: Math.abs(newStd.reduce((s: number, it: Entry) => s + it.amount, 0) - newChk.reduce((s: number, it: Entry) => s + it.amount, 0)),
+            status: (newStd.length > 0 && newChk.length > 0) ? (Math.abs(newStd.reduce((s,i)=>s+i.amount,0)-newChk.reduce((s,i)=>s+i.amount,0))<0.01 ? 'match' : 'mismatch') : (newStd.length||newChk.length? 'missing' : 'missing'),
+            subcategories,
+          } as any;
+        }
+      }
+
+      return newCats;
+    };
+
+    try {
+      const processed = splitLargeCategories(categories, 4);
+      // 覆盖 categories 为处理后的结果
+      for (const k of Object.keys(processed)) categories[k] = processed[k];
+    } catch (e) {
+      console.warn('细化分类后处理失败，使用原始分类', e);
+    }
 
     // 补上未分类
     const classifiedStandardIds = new Set(Object.values(categories).flatMap(cat => cat.standard.map(e => e.id)));

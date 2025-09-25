@@ -119,7 +119,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
             </span>
           </div>
 
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-transparent">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent">
             {standardEntries.length > 0 ? (
               standardEntries.map((entry, index) => (
                 <EntryCard
@@ -154,7 +154,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
             </span>
           </div>
 
-          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-transparent">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent">
             {checkEntries.length > 0 ? (
               checkEntries.map((entry, index) => (
                 <EntryCard
@@ -199,10 +199,10 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onNext}
-          className="flex items-center space-x-2 px-8 py-3 finance-gradient hover:shadow-lg hover:shadow-finance-blue/25 rounded-xl font-semibold text-white transition-all"
+          className="flex items-center space-x-2 px-8 py-3 rounded-xl font-semibold transition-all bg-gold/10 hover:bg-gold/15 text-gold glow-gold border border-gold/10"
         >
           <span>{t('display.proceed')}</span>
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-5 h-5 text-gold" />
         </motion.button>
       </motion.div>
     </motion.div>
